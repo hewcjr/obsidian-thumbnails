@@ -7,6 +7,7 @@ interface VidInfo {
 	title: string;
 	author: string;
 	authorUrl: string;
+	uploadDate: string;
 	vidFound: boolean;
 	networkError: boolean;
 	infoStored: boolean;
@@ -312,6 +313,12 @@ export default class ThumbyPlugin extends Plugin {
 			title: info.author,
 			cls: "thumbnail-author",
 		});
+		if (info.uploadDate) {
+			textBox.createDiv({
+				text: info.uploadDate,
+				cls: "thumbnail-upload-date",
+			});
+		}
 
 		const isInPlaylist = this.isInPlaylist(info.url);
 		if (isInPlaylist) {
@@ -408,6 +415,7 @@ export default class ThumbyPlugin extends Plugin {
 			title: "",
 			author: "",
 			authorUrl: "",
+			uploadDate: "",
 			vidFound: false,
 			networkError: false,
 			infoStored: false,
@@ -415,7 +423,7 @@ export default class ThumbyPlugin extends Plugin {
 		};
 
 		const input = source.trim().split("\n");
-		if (input.length !== 5) {
+		if (input.length !== 5 && input.length !== 6) {
 			return info;
 		}
 
@@ -425,6 +433,7 @@ export default class ThumbyPlugin extends Plugin {
 			Author: "",
 			Thumbnail: "",
 			AuthorUrl: "",
+			UploadDate: "",
 		};
 
 		for (const [i, line] of input.entries()) {
@@ -457,6 +466,7 @@ export default class ThumbyPlugin extends Plugin {
 		info.author = parsedInput["Author"];
 		info.thumbnail = parsedInput["Thumbnail"];
 		info.authorUrl = parsedInput["AuthorUrl"];
+		info.uploadDate = parsedInput["UploadDate"] ?? "";
 		info.vidFound = true;
 
 		if (this.pathIsLocal(info.thumbnail)) {
@@ -498,7 +508,7 @@ export default class ThumbyPlugin extends Plugin {
 			info.thumbnail = await this.saveImage(info);
 		}
 
-		const content = `\`\`\`vid\n${info.url}\nTitle: ${info.title}\nAuthor: ${info.author}\nThumbnail: ${info.thumbnail}\nAuthorUrl: ${info.authorUrl}\n\`\`\``;
+		const content = `\`\`\`vid\n${info.url}\nTitle: ${info.title}\nAuthor: ${info.author}\nThumbnail: ${info.thumbnail}\nAuthorUrl: ${info.authorUrl}\nUploadDate: ${info.uploadDate}\n\`\`\``;
 
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 		if (view) {
@@ -654,6 +664,7 @@ export default class ThumbyPlugin extends Plugin {
 			title: "",
 			author: "",
 			authorUrl: "",
+			uploadDate: "",
 			vidFound: false,
 			networkError: false,
 			infoStored: false,
